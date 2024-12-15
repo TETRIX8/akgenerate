@@ -1,9 +1,11 @@
 import ImageGenerator from "@/components/ImageGenerator";
 import Snowfall from "@/components/Snowfall";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const Index = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#1A1F2C] to-[#403E43] text-white py-12">
+      <LoadingScreen />
       <Snowfall />
       <div className="container mx-auto px-4 relative z-10">
         <h1 className="text-5xl font-bold text-center mb-8 animate-fade-in bg-clip-text text-transparent bg-gradient-to-r from-[#C8C8C9] to-white">
