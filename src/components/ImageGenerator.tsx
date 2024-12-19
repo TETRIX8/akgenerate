@@ -101,21 +101,21 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-6 space-y-8 bg-gradient-to-b from-[#1A1F2C] to-[#403E43] rounded-xl shadow-2xl animate-fade-in">
+    <div className="w-full max-w-3xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8 bg-gradient-to-b from-[#1A1F2C] to-[#403E43] rounded-xl shadow-2xl animate-fade-in transition-all duration-300 ease-in-out">
       <div className="space-y-4">
         <div className="relative">
           <Input
             placeholder="Введите ваш запрос здесь..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full p-4 text-lg bg-[#222222]/50 backdrop-blur-sm border border-[#8E9196] rounded-lg shadow-sm transition-all duration-300 focus:ring-2 focus:ring-[#8A898C]/50 text-white"
+            className="w-full p-3 md:p-4 text-base md:text-lg bg-[#222222]/50 backdrop-blur-sm border border-[#8E9196] rounded-lg shadow-sm transition-all duration-300 focus:ring-2 focus:ring-[#8A898C]/50 text-white"
             disabled={isLoading}
           />
           <Button
             onClick={handleGenerate}
             disabled={isLoading}
             className={cn(
-              "mt-4 w-full relative overflow-hidden transition-all duration-300 bg-gradient-to-r from-[#403E43] to-[#1A1F2C] hover:from-[#1A1F2C] hover:to-[#403E43] text-white border border-[#8E9196]",
+              "mt-4 w-full relative overflow-hidden transition-all duration-300 bg-gradient-to-r from-[#403E43] to-[#1A1F2C] hover:from-[#1A1F2C] hover:to-[#403E43] text-white border border-[#8E9196] transform hover:scale-[1.02]",
               isLoading && "animate-pulse"
             )}
           >
@@ -131,7 +131,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
         </div>
       </div>
 
-      <div className="relative min-h-[512px] w-full rounded-lg overflow-hidden bg-[#222222]/30 backdrop-blur-sm border border-[#8E9196] transition-all duration-300">
+      <div className="relative min-h-[300px] md:min-h-[512px] w-full rounded-lg overflow-hidden bg-[#222222]/30 backdrop-blur-sm border border-[#8E9196] transition-all duration-300">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#222222]/80 backdrop-blur-sm">
             <LoadingSpinner size="lg" />
@@ -145,7 +145,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
           />
         )}
         {!generatedImage && !isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center text-[#C8C8C9]">
+          <div className="absolute inset-0 flex items-center justify-center text-[#C8C8C9] p-4 text-center">
             Здесь появится ваше сгенерированное изображение
           </div>
         )}
