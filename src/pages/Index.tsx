@@ -3,6 +3,8 @@ import ImageGallery from "@/components/ImageGallery";
 import Snowfall from "@/components/Snowfall";
 import LoadingScreen from "@/components/LoadingScreen";
 import { MessageSquare } from "lucide-react";
+import { useEffect } from "react";
+import AudioManager from "@/utils/audio";
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +13,15 @@ import {
 } from "@/components/ui/tooltip";
 
 const Index = () => {
+  useEffect(() => {
+    const audioManager = AudioManager.getInstance();
+    audioManager.playBackgroundMusic();
+    
+    return () => {
+      audioManager.pauseBackgroundMusic();
+    };
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#1A1F2C] to-[#403E43] text-white py-6 md:py-12">
       <LoadingScreen />

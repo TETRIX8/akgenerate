@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { saveImage } from "@/utils/indexedDB";
+import AudioManager from "@/utils/audio";
 
 interface ImageGeneratorProps {
   onGenerate: () => Promise<void>;
@@ -83,6 +84,8 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
     }
 
     setIsLoading(true);
+    AudioManager.getInstance().playGenerateSound();
+    
     try {
       const api = new Text2ImageAPI('https://api-key.fusionbrain.ai/', "B4C38C9446A185E0912CC0F84E0E3883", 'B14DF360A5C63F6708882EEB2F781F14');
       const modelId = await api.getModel();
