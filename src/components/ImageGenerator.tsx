@@ -5,6 +5,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { saveImage } from "@/utils/indexedDB";
 
+interface ImageGeneratorProps {
+  onGenerate: () => Promise<void>;
+}
+
 class Text2ImageAPI {
   private url: string;
   private authHeaders: { [key: string]: string };
