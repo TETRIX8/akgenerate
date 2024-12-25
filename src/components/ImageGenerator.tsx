@@ -121,7 +121,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <LoadingSpinner />
+                <TsunamiSpinner />
                 <span className="ml-2">Генерация...</span>
               </div>
             ) : (
@@ -134,7 +134,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
       <div className="relative min-h-[300px] md:min-h-[512px] w-full rounded-lg overflow-hidden bg-[#222222]/30 backdrop-blur-sm border border-[#8E9196] transition-all duration-300">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#222222]/80 backdrop-blur-sm">
-            <LoadingSpinner size="lg" />
+            <TsunamiSpinner size="lg" />
           </div>
         )}
         {generatedImage && !isLoading && (
@@ -154,15 +154,30 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
   );
 };
 
-const LoadingSpinner = ({ size = "default" }: { size?: "default" | "lg" }) => (
+const TsunamiSpinner = ({ size = "default" }: { size?: "default" | "lg" }) => (
   <div
     className={cn(
-      "inline-block animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]",
-      size === "lg" ? "h-12 w-12" : "h-4 w-4"
+      "relative",
+      size === "lg" ? "w-24 h-24" : "w-8 h-8"
     )}
-    role="status"
   >
-    <span className="sr-only">Загрузка...</span>
+    <div className={cn(
+      "absolute inset-0 rounded-full border-4 border-blue-500/30",
+      "animate-[spin_3s_linear_infinite]"
+    )}>
+      <div className="absolute inset-0 transform rotate-45">
+        <div className={cn(
+          "absolute inset-0 rounded-full border-4 border-transparent",
+          "border-t-blue-500 border-r-blue-500",
+          "animate-[wave_2s_ease-in-out_infinite]"
+        )} />
+      </div>
+    </div>
+    <div className={cn(
+      "absolute inset-0 rounded-full border-4 border-transparent",
+      "border-t-blue-500",
+      "animate-[spin_1.5s_linear_infinite]"
+    )} />
   </div>
 );
 
