@@ -76,6 +76,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [showFog, setShowFog] = useState(false);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -84,6 +85,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
     }
 
     setIsLoading(true);
+    setShowFog(true);
     AudioManager.getInstance().playGenerateSound();
     
     try {
@@ -103,60 +105,66 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
       console.error(error);
     } finally {
       setIsLoading(false);
+      setTimeout(() => setShowFog(false), 500);
     }
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8 bg-gradient-to-b from-[#1A1F2C] to-[#403E43] rounded-xl shadow-2xl animate-fade-in transition-all duration-300 ease-in-out">
-      <div className="space-y-4">
-        <div className="relative">
-          <Input
-            placeholder="Введите ваш запрос здесь..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="w-full p-3 md:p-4 text-base md:text-lg bg-[#222222]/50 backdrop-blur-sm border border-[#8E9196] rounded-lg shadow-sm transition-all duration-300 focus:ring-2 focus:ring-[#8A898C]/50 text-white"
-            disabled={isLoading}
-          />
-          <Button
-            onClick={handleGenerate}
-            disabled={isLoading}
-            className={cn(
-              "mt-4 w-full relative overflow-hidden transition-all duration-300 bg-gradient-to-r from-[#403E43] to-[#1A1F2C] hover:from-[#1A1F2C] hover:to-[#403E43] text-white border border-[#8E9196] transform hover:scale-[1.02]",
-              isLoading && "animate-pulse"
-            )}
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <TsunamiSpinner />
-                <span className="ml-2">Генерация...</span>
-              </div>
-            ) : (
-              "Сгенерировать"
-            )}
-          </Button>
+    <>
+      {showFog && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-500 ease-in-out" />
+      )}
+      <div className="w-full max-w-3xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8 bg-gradient-to-b from-[#1A1F2C] to-[#403E43] rounded-xl shadow-2xl animate-fade-in transition-all duration-300 ease-in-out relative z-50">
+        <div className="space-y-4">
+          <div className="relative">
+            <Input
+              placeholder="Введите ваш запрос здесь..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="w-full p-3 md:p-4 text-base md:text-lg bg-[#222222]/50 backdrop-blur-sm border border-[#8E9196] rounded-lg shadow-sm transition-all duration-300 focus:ring-2 focus:ring-[#8A898C]/50 text-white"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleGenerate}
+              disabled={isLoading}
+              className={cn(
+                "mt-4 w-full relative overflow-hidden transition-all duration-300 bg-gradient-to-r from-[#403E43] to-[#1A1F2C] hover:from-[#1A1F2C] hover:to-[#403E43] text-white border border-[#8E9196] transform hover:scale-[1.02]",
+                isLoading && "animate-pulse"
+              )}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <TsunamiSpinner />
+                  <span className="ml-2">Генерация...</span>
+                </div>
+              ) : (
+                "Сгенерировать"
+              )}
+            </Button>
+          </div>
+        </div>
+
+        <div className="relative min-h-[300px] md:min-h-[512px] w-full rounded-lg overflow-hidden bg-[#222222]/30 backdrop-blur-sm border border-[#8E9196] transition-all duration-300">
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#222222]/80 backdrop-blur-sm">
+              <TsunamiSpinner size="lg" />
+            </div>
+          )}
+          {generatedImage && !isLoading && (
+            <img
+              src={generatedImage}
+              alt="Сгенерированное изображение"
+              className="w-full h-full object-contain animate-[fadeIn_1s_ease-in-out] transition-all duration-500"
+            />
+          )}
+          {!generatedImage && !isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center text-[#C8C8C9] p-4 text-center">
+              Здесь появится ваше сгенерированное изображение
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="relative min-h-[300px] md:min-h-[512px] w-full rounded-lg overflow-hidden bg-[#222222]/30 backdrop-blur-sm border border-[#8E9196] transition-all duration-300">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#222222]/80 backdrop-blur-sm">
-            <TsunamiSpinner size="lg" />
-          </div>
-        )}
-        {generatedImage && !isLoading && (
-          <img
-            src={generatedImage}
-            alt="Сгенерированное изображение"
-            className="w-full h-full object-contain animate-fade-in"
-          />
-        )}
-        {!generatedImage && !isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center text-[#C8C8C9] p-4 text-center">
-            Здесь появится ваше сгенерированное изображение
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
 };
 

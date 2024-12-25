@@ -71,6 +71,10 @@ export default {
           "0%": { opacity: "0", transform: "scale(0.95)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        "fadeIn": {
+          "0%": { opacity: "0", filter: "blur(10px)" },
+          "100%": { opacity: "1", filter: "blur(0)" }
+        },
         "wave": {
           "0%": { transform: "rotate(0deg)" },
           "50%": { transform: "rotate(180deg)" },
