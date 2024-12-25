@@ -10,7 +10,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, MoreVertical, Download, RefreshCw } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SavedImage {
   id: number;
@@ -20,17 +26,23 @@ interface SavedImage {
 
 const ImageGallery = () => {
   const [images, setImages] = useState<SavedImage[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadImages();
+    const interval = setInterval(loadImages, 2000); // Auto refresh every 2 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const loadImages = async () => {
     try {
+      setIsRefreshing(true);
       const savedImages = await getAllImages() as SavedImage[];
       setImages(savedImages);
     } catch (error) {
       toast.error("Ошибка при загрузке изображений");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -49,15 +61,19 @@ const ImageGallery = () => {
       <SheetTrigger asChild>
         <Button
           variant="outline"
-          className="fixed right-4 top-4 z-50 flex items-center gap-2 bg-white/10 backdrop-blur-sm border-[#8E9196] text-white hover:bg-white/20"
+          className="fixed right-4 top-4 z-50 md:flex items-center gap-2 bg-white/10 backdrop-blur-sm border-[#8E9196] text-white hover:bg-white/20"
         >
-          <ImageIcon className="w-4 h-4" />
-          Галерея
+          <MoreVertical className="w-4 h-4 md:hidden" />
+          <ImageIcon className="hidden md:block w-4 h-4" />
+          <span className="hidden md:inline">Галерея</span>
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md bg-[#1A1F2C]/95 backdrop-blur-lg border-[#8E9196] text-white">
         <SheetHeader>
-          <SheetTitle className="text-white">Галерея изображений</SheetTitle>
+          <SheetTitle className="text-white flex items-center justify-between">
+            Галерея изображений
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </SheetTitle>
           <SheetDescription className="text-gray-400">
             Все сгенерированные изображения
           </SheetDescription>
@@ -81,6 +97,7 @@ const ImageGallery = () => {
                     onClick={() => handleDownload(image.data, index)}
                     className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
                   >
+                    <Download className="w-4 h-4 mr-2" />
                     Скачать
                   </Button>
                 </div>
