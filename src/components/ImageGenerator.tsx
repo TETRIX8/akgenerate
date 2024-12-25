@@ -3,10 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-interface ImageGeneratorProps {
-  onGenerate: (prompt: string) => Promise<void>;
-}
+import { saveImage } from "@/utils/indexedDB";
 
 class Text2ImageAPI {
   private url: string;
@@ -89,7 +86,9 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
       const images = await api.checkGeneration(uuid);
       
       if (images && images[0]) {
-        setGeneratedImage(`data:image/jpeg;base64,${images[0]}`);
+        const imageData = `data:image/jpeg;base64,${images[0]}`;
+        setGeneratedImage(imageData);
+        await saveImage(imageData);
         toast.success("Изображение успешно сгенерировано!");
       }
     } catch (error) {
