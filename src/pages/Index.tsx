@@ -2,7 +2,7 @@ import ImageGenerator from "@/components/ImageGenerator";
 import ImageGallery from "@/components/ImageGallery";
 import Snowfall from "@/components/Snowfall";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Telegram } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -50,7 +50,7 @@ const Index = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-1 text-[#aaadb0] hover:text-white transition-colors"
             >
-              <Telegram className="w-4 h-4" />
+              <MessageSquare className="w-4 h-4" />
               <span>@TETRIX_UNO</span>
             </a>
           </div>
