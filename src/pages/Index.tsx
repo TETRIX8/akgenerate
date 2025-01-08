@@ -2,8 +2,8 @@ import ImageGenerator from "@/components/ImageGenerator";
 import ImageGallery from "@/components/ImageGallery";
 import Snowfall from "@/components/Snowfall";
 import LoadingScreen from "@/components/LoadingScreen";
-import { MessageSquare } from "lucide-react";
-import { useEffect } from "react";
+import { MessageSquare, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import AudioManager from "@/utils/audio";
 import {
   Tooltip,
@@ -13,11 +13,25 @@ import {
 } from "@/components/ui/tooltip";
 
 const Index = () => {
+  const [userCount, setUserCount] = useState(0);
+
   useEffect(() => {
+    // Simulate user count updates
+    const randomUserCount = Math.floor(Math.random() * 100) + 50; // Random number between 50-150
+    setUserCount(randomUserCount);
+
+    const interval = setInterval(() => {
+      setUserCount(prev => {
+        const change = Math.floor(Math.random() * 5) - 2; // Random change between -2 and +2
+        return Math.max(50, prev + change); // Ensure count doesn't go below 50
+      });
+    }, 5000);
+
     const audioManager = AudioManager.getInstance();
     audioManager.playBackgroundMusic();
     
     return () => {
+      clearInterval(interval);
       audioManager.pauseBackgroundMusic();
     };
   }, []);
@@ -28,6 +42,14 @@ const Index = () => {
       <Snowfall />
       <ImageGallery />
       <div className="container mx-auto px-4 relative z-10">
+        <div className="flex items-center justify-center mb-6 animate-fade-in">
+          <div className="bg-[#1A1F2C]/50 px-4 py-2 rounded-full backdrop-blur-sm border border-[#8E9196]/30 inline-flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#9b87f5]" />
+            <span className="text-[#C8C8C9]">Активных пользователей:</span>
+            <span className="font-bold text-[#9b87f5]">{userCount}</span>
+          </div>
+        </div>
+
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 md:mb-8 animate-fade-in bg-clip-text text-transparent bg-gradient-to-r from-[#C8C8C9] to-white">
           AK PROJECT
         </h1>
