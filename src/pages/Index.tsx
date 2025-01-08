@@ -5,6 +5,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { MessageSquare, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import AudioManager from "@/utils/audio";
+import IPTracker from "@/utils/ipTracker";
 import {
   Tooltip,
   TooltipContent,
@@ -16,14 +17,21 @@ const Index = () => {
   const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
-    // Simulate user count updates
-    const randomUserCount = Math.floor(Math.random() * 100) + 50; // Random number between 50-150
-    setUserCount(randomUserCount);
+    const initializeVisitor = async () => {
+      const ipTracker = IPTracker.getInstance();
+      await ipTracker.getOrCreateVisitorId(); // This ensures the current user is counted
+    };
+
+    initializeVisitor();
+
+    // Simulate user count updates with unique visitors
+    const baseCount = Math.floor(Math.random() * 50) + 25; // Base count between 25-75
+    setUserCount(baseCount);
 
     const interval = setInterval(() => {
       setUserCount(prev => {
-        const change = Math.floor(Math.random() * 5) - 2; // Random change between -2 and +2
-        return Math.max(50, prev + change); // Ensure count doesn't go below 50
+        const change = Math.floor(Math.random() * 3) - 1; // Smaller fluctuations (-1 to +1)
+        return Math.max(25, prev + change); // Ensure count doesn't go below 25
       });
     }, 5000);
 
