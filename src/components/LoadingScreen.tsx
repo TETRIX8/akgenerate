@@ -1,4 +1,6 @@
+
 import React, { useEffect, useState } from 'react';
+import SpaceAnimation from './SpaceAnimation';
 
 const LoadingScreen = () => {
   const [show, setShow] = useState(true);
@@ -6,7 +8,7 @@ const LoadingScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
-    }, 5000);
+    }, 7000); // Changed to 7 seconds to match the animation duration
 
     return () => clearTimeout(timer);
   }, []);
@@ -15,7 +17,9 @@ const LoadingScreen = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-[#1A1F2C] to-[#403E43]">
-      <div className="relative p-4">
+      <SpaceAnimation />
+      
+      <div className="relative p-4 z-10">
         <div className="absolute -inset-20 bg-gradient-to-r from-blue-500 to-purple-600 opacity-20 blur-3xl animate-pulse" />
         <div className="text-4xl md:text-6xl font-bold text-center relative transition-all duration-500 ease-in-out">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#C8C8C9] to-white animate-fade-in">
