@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 const SpaceAnimation = () => {
@@ -122,17 +123,135 @@ const SpaceAnimation = () => {
       nebulaColors.push(r, g, b, a);
     }
     
-    // Create planets
-    const planet = createSphere(0.3, 20, 20);
-    const planetColors = Array(planet.length / 3 * 4).fill(0);
+    // Create solar system objects
+    // Sun
+    const sun = createSphere(0.2, 20, 20);
+    const sunColors = Array(sun.length / 3 * 4).fill(0);
     
-    // Fill with blue-ish planet colors
-    for (let i = 0; i < planetColors.length; i += 4) {
-      planetColors[i] = 0.2;     // r
-      planetColors[i + 1] = 0.4; // g
-      planetColors[i + 2] = 0.8; // b
-      planetColors[i + 3] = 1.0; // a
+    // Fill with sun colors (yellow/orange)
+    for (let i = 0; i < sunColors.length; i += 4) {
+      sunColors[i] = 1.0;       // r
+      sunColors[i + 1] = 0.6;   // g
+      sunColors[i + 2] = 0.0;   // b
+      sunColors[i + 3] = 1.0;   // a
     }
+    
+    // Planets data
+    const planets = [
+      { 
+        // Mercury
+        mesh: createSphere(0.03, 16, 16),
+        color: [0.8, 0.8, 0.8, 1.0], // Gray
+        distance: 0.3,
+        speed: 0.02,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Venus
+        mesh: createSphere(0.05, 16, 16),
+        color: [0.9, 0.7, 0.4, 1.0], // Yellowish
+        distance: 0.4,
+        speed: 0.015,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Earth
+        mesh: createSphere(0.055, 16, 16),
+        color: [0.2, 0.4, 0.8, 1.0], // Blue
+        distance: 0.5,
+        speed: 0.01,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Mars
+        mesh: createSphere(0.04, 16, 16),
+        color: [0.8, 0.3, 0.2, 1.0], // Red
+        distance: 0.6,
+        speed: 0.008,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Jupiter
+        mesh: createSphere(0.12, 16, 16),
+        color: [0.8, 0.7, 0.5, 1.0], // Brownish
+        distance: 0.8,
+        speed: 0.004,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Saturn
+        mesh: createSphere(0.1, 16, 16),
+        color: [0.9, 0.8, 0.6, 1.0], // Light brown
+        distance: 1.0,
+        speed: 0.003,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Saturn's rings
+        mesh: createRing(0.12, 0.16, 30),
+        color: [0.8, 0.8, 0.8, 0.7], // Gray, semi-transparent
+        distance: 1.0,
+        speed: 0.003,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Uranus
+        mesh: createSphere(0.07, 16, 16),
+        color: [0.5, 0.8, 0.9, 1.0], // Light blue
+        distance: 1.2,
+        speed: 0.002,
+        phase: Math.random() * Math.PI * 2
+      },
+      { 
+        // Neptune
+        mesh: createSphere(0.07, 16, 16),
+        color: [0.2, 0.3, 0.9, 1.0], // Deep blue
+        distance: 1.4,
+        speed: 0.001,
+        phase: Math.random() * Math.PI * 2
+      }
+    ];
+    
+    // Create planet color buffers
+    const planetColorBuffers = planets.map(planet => {
+      const colors = [];
+      const baseColor = planet.color;
+      
+      for (let i = 0; i < planet.mesh.length / 3; i++) {
+        colors.push(baseColor[0], baseColor[1], baseColor[2], baseColor[3]);
+      }
+      
+      return colors;
+    });
+    
+    // Create planet orbit data
+    const orbits = planets.map(planet => {
+      if (planet.mesh === planets[6].mesh) return []; // Skip rings
+      
+      const orbitVertices = [];
+      const segments = 60;
+      const distance = planet.distance;
+      
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+        orbitVertices.push(x, 0, z);
+      }
+      
+      return orbitVertices;
+    });
+    
+    // Create orbit color data
+    const orbitColors = orbits.map(orbit => {
+      if (!orbit.length) return []; // Skip rings orbit
+      
+      const colors = [];
+      for (let i = 0; i < orbit.length / 3; i++) {
+        colors.push(0.4, 0.4, 0.4, 0.2); // Subtle gray
+      }
+      return colors;
+    });
     
     // Buffers
     const buffers = {
@@ -146,11 +265,27 @@ const SpaceAnimation = () => {
         color: gl.createBuffer(),
         count: nebulaPoints,
       },
-      planet: {
+      sun: {
         position: gl.createBuffer(),
         color: gl.createBuffer(),
-        count: planet.length / 3,
-      }
+        count: sun.length / 3,
+      },
+      planets: planets.map((planet, index) => ({
+        position: gl.createBuffer(),
+        color: gl.createBuffer(),
+        count: planet.mesh.length / 3,
+        distance: planet.distance,
+        speed: planet.speed,
+        phase: planet.phase
+      })),
+      orbits: orbits.map((orbit, index) => {
+        if (!orbit.length) return null; // Skip rings orbit
+        return {
+          position: gl.createBuffer(),
+          color: gl.createBuffer(),
+          count: orbit.length / 3
+        };
+      })
     };
     
     // Populate the star position buffer
@@ -169,13 +304,33 @@ const SpaceAnimation = () => {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.nebula.color);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nebulaColors), gl.STATIC_DRAW);
     
-    // Populate the planet position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planet.position);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planet), gl.STATIC_DRAW);
+    // Populate the sun position buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.sun.position);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sun), gl.STATIC_DRAW);
     
-    // Populate the planet color buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planet.color);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planetColors), gl.STATIC_DRAW);
+    // Populate the sun color buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.sun.color);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sunColors), gl.STATIC_DRAW);
+    
+    // Populate planet buffers
+    planets.forEach((planet, index) => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planets[index].position);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planet.mesh), gl.STATIC_DRAW);
+      
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planets[index].color);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planetColorBuffers[index]), gl.STATIC_DRAW);
+    });
+    
+    // Populate orbit buffers
+    orbits.forEach((orbit, index) => {
+      if (!orbit.length) return; // Skip rings orbit
+      
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.orbits[index].position);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(orbit), gl.STATIC_DRAW);
+      
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.orbits[index].color);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(orbitColors[index]), gl.STATIC_DRAW);
+    });
     
     // Clear the canvas
     gl.clearColor(0.0, 0.0, 0.05, 1.0);
@@ -196,6 +351,7 @@ const SpaceAnimation = () => {
       // Clear the canvas
       gl.clearColor(0.0, 0.0, 0.05, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);
       
       // Create the projection matrix
       const projectionMatrix = mat4.create();
@@ -260,36 +416,121 @@ const SpaceAnimation = () => {
         gl.drawArrays(gl.POINTS, 0, visibleNebula);
       }
       
-      // Planet drawing
-      if (progress > 0.6) {
-        const planetOpacity = Math.min(1.0, (progress - 0.6) * 3);
+      // Solar system drawing (appears after 0.4)
+      if (progress > 0.4) {
+        const solarOpacity = Math.min(1.0, (progress - 0.4) * 3);
         
-        const modelViewMatrix = mat4.create();
-        mat4.translate(modelViewMatrix, modelViewMatrix, [0.5, -0.2, -4.0]);
-        mat4.rotate(modelViewMatrix, modelViewMatrix, rotation * 0.5, [0, 1, 0]);
+        // Draw orbits first
+        orbits.forEach((orbit, index) => {
+          if (!orbit.length) return; // Skip rings orbit
+          
+          const modelViewMatrix = mat4.create();
+          mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -2.5]);
+          mat4.rotate(modelViewMatrix, modelViewMatrix, Math.PI / 4, [1, 0, 0]); // Tilt to show depth
+          
+          gl.useProgram(programInfo.program);
+          gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+          gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+          
+          // Set the positions
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers.orbits[index].position);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+          
+          // Update orbit color with opacity
+          const updatedOrbitColors = [...orbitColors[index]];
+          for (let i = 3; i < updatedOrbitColors.length; i += 4) {
+            updatedOrbitColors[i] = 0.2 * solarOpacity;
+          }
+          
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers.orbits[index].color);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(updatedOrbitColors), gl.STATIC_DRAW);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+          
+          // Draw orbit
+          gl.drawArrays(gl.LINE_LOOP, 0, buffers.orbits[index].count);
+        });
+        
+        // Draw sun
+        const sunModelViewMatrix = mat4.create();
+        mat4.translate(sunModelViewMatrix, sunModelViewMatrix, [0.0, 0.0, -2.5]);
+        mat4.rotate(sunModelViewMatrix, sunModelViewMatrix, Math.PI / 4, [1, 0, 0]); // Tilt to show depth
+        mat4.rotate(sunModelViewMatrix, sunModelViewMatrix, rotation, [0, 1, 0]); // Slow rotation
         
         gl.useProgram(programInfo.program);
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
-        gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+        gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, sunModelViewMatrix);
         
         // Set the positions
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planet.position);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.sun.position);
         gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
         
         // Set the colors with updated opacity
-        const updatedPlanetColors = [...planetColors];
-        for (let i = 3; i < updatedPlanetColors.length; i += 4) {
-          updatedPlanetColors[i] = planetOpacity;
+        const updatedSunColors = [...sunColors];
+        for (let i = 3; i < updatedSunColors.length; i += 4) {
+          updatedSunColors[i] = solarOpacity;
         }
         
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planet.color);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(updatedPlanetColors), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.sun.color);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(updatedSunColors), gl.STATIC_DRAW);
         gl.vertexAttribPointer(programInfo.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
         
-        // Draw
-        gl.drawArrays(gl.TRIANGLES, 0, buffers.planet.count);
+        // Draw sun
+        gl.drawArrays(gl.TRIANGLES, 0, buffers.sun.count);
+        
+        // Draw planets
+        planets.forEach((planet, index) => {
+          const modelViewMatrix = mat4.create();
+          mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -2.5]);
+          mat4.rotate(modelViewMatrix, modelViewMatrix, Math.PI / 4, [1, 0, 0]); // Tilt to show depth
+          
+          // Calculate planet position
+          const angle = rotation * planet.speed * 10 + planet.phase;
+          const x = Math.cos(angle) * planet.distance;
+          const z = Math.sin(angle) * planet.distance;
+          
+          // Special handling for Saturn's rings
+          if (index === 6) { // Saturn's rings
+            // Use the same position as Saturn (index 5)
+            const saturnAngle = rotation * planets[5].speed * 10 + planets[5].phase;
+            const saturnX = Math.cos(saturnAngle) * planets[5].distance;
+            const saturnZ = Math.sin(saturnAngle) * planets[5].distance;
+            
+            mat4.translate(modelViewMatrix, modelViewMatrix, [saturnX, 0, saturnZ]);
+            mat4.rotate(modelViewMatrix, modelViewMatrix, Math.PI / 2, [1, 0, 0]); // Rings are flat
+          } else {
+            mat4.translate(modelViewMatrix, modelViewMatrix, [x, 0, z]);
+          }
+          
+          // Add rotation to the planet itself
+          mat4.rotate(modelViewMatrix, modelViewMatrix, rotation * 2, [0, 1, 0]);
+          
+          gl.useProgram(programInfo.program);
+          gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+          gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+          
+          // Set the positions
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planets[index].position);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+          
+          // Update color with opacity
+          const updatedPlanetColors = [...planetColorBuffers[index]];
+          for (let i = 3; i < updatedPlanetColors.length; i += 4) {
+            updatedPlanetColors[i] = updatedPlanetColors[i] * solarOpacity;
+          }
+          
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers.planets[index].color);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(updatedPlanetColors), gl.STATIC_DRAW);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+          
+          // Draw planet
+          gl.drawArrays(gl.TRIANGLES, 0, buffers.planets[index].count);
+        });
       }
       
       // Continue animation if not complete
@@ -362,6 +603,40 @@ const SpaceAnimation = () => {
       }
       
       return sphereVertices;
+    }
+    
+    // Helper function to create a ring
+    function createRing(innerRadius: number, outerRadius: number, segments: number) {
+      const vertices = [];
+      
+      for (let i = 0; i < segments; i++) {
+        const theta = (i / segments) * Math.PI * 2;
+        const thetaNext = ((i + 1) / segments) * Math.PI * 2;
+        
+        const innerX = Math.cos(theta) * innerRadius;
+        const innerZ = Math.sin(theta) * innerRadius;
+        
+        const outerX = Math.cos(theta) * outerRadius;
+        const outerZ = Math.sin(theta) * outerRadius;
+        
+        const nextInnerX = Math.cos(thetaNext) * innerRadius;
+        const nextInnerZ = Math.sin(thetaNext) * innerRadius;
+        
+        const nextOuterX = Math.cos(thetaNext) * outerRadius;
+        const nextOuterZ = Math.sin(thetaNext) * outerRadius;
+        
+        // First triangle
+        vertices.push(innerX, 0, innerZ);
+        vertices.push(outerX, 0, outerZ);
+        vertices.push(nextInnerX, 0, nextInnerZ);
+        
+        // Second triangle
+        vertices.push(nextInnerX, 0, nextInnerZ);
+        vertices.push(outerX, 0, outerZ);
+        vertices.push(nextOuterX, 0, nextOuterZ);
+      }
+      
+      return vertices;
     }
     
     // Add mat4 implementation (simplified for this example)

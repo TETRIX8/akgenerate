@@ -8,7 +8,7 @@ const LoadingScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
-    }, 7000); // Changed to 7 seconds to match the animation duration
+    }, 7000); // 7 seconds to match the animation duration
 
     return () => clearTimeout(timer);
   }, []);
