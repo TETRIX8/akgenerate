@@ -281,7 +281,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
                     <SelectValue placeholder="Выберите стиль" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#222222] border border-[#8E9196] text-white max-h-[200px] overflow-y-auto">
-                    <SelectItem value="">Без стиля</SelectItem>
+                    <SelectItem key="no-style" value="no-style">Без стиля</SelectItem>
                     {styles.map((styleItem) => (
                       <SelectItem key={styleItem.id} value={styleItem.id}>
                         {styleItem.name}
