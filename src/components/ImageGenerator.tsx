@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,6 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { saveImage } from "@/utils/indexedDB";
 import AudioManager from "@/utils/audio";
+import PixelAssemblyAnimation from "./PixelAssemblyAnimation";
 
 interface ImageGeneratorProps {
   onGenerate: () => Promise<void>;
@@ -146,8 +148,12 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
 
         <div className="relative min-h-[300px] md:min-h-[512px] w-full rounded-lg overflow-hidden bg-[#222222]/30 backdrop-blur-sm border border-[#8E9196] transition-all duration-300">
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#222222]/80 backdrop-blur-sm">
-              <TsunamiSpinner size="lg" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#222222]/80 backdrop-blur-sm z-10">
+              <PixelAssemblyAnimation className="absolute inset-0" />
+              <div className="z-20 flex flex-col items-center gap-3">
+                <TsunamiSpinner size="lg" />
+                <div className="text-white font-medium">Собираем пиксели...</div>
+              </div>
             </div>
           )}
           {generatedImage && !isLoading && (
