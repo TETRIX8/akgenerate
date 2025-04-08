@@ -4,28 +4,13 @@ import SpaceAnimation from './SpaceAnimation';
 
 const LoadingScreen = () => {
   const [show, setShow] = useState(true);
-  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const totalDuration = 7000; // 7 seconds
-    const updateInterval = 50; // Update every 50ms
-    const incrementPerUpdate = (updateInterval / totalDuration) * 100;
-    
-    let currentProgress = 0;
-    const timer = setInterval(() => {
-      currentProgress += incrementPerUpdate;
-      if (currentProgress >= 100) {
-        clearInterval(timer);
-        setProgress(100);
-        setTimeout(() => setShow(false), 500); // Slight delay before hiding
-      } else {
-        setProgress(currentProgress);
-      }
-    }, updateInterval);
+    const timer = setTimeout(() => {
+      setShow(false);
+    }, 7000); // 7 seconds to match the animation duration
 
-    return () => {
-      clearInterval(timer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   if (!show) return null;
@@ -49,15 +34,6 @@ const LoadingScreen = () => {
               />
             ))}
           </div>
-          
-          {/* Progress bar */}
-          <div className="mt-6 w-64 md:w-80 h-1.5 bg-white/20 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          
           <div className="absolute -inset-10 border border-white/10 rounded-xl animate-[pulse_2s_infinite] transition-all duration-300" />
           <div className="absolute -inset-20 border border-white/5 rounded-2xl animate-[pulse_3s_infinite] transition-all duration-300" />
         </div>
