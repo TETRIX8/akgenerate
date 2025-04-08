@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -51,12 +51,7 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
     secretKey: "B14DF360A5C63F6708882EEB2F781F14", // Replace with your actual Secret key
   };
 
-  // Get available styles when component mounts
-  useState(() => {
-    fetchStyles();
-  });
-
-  // Fetch available style presets
+  // Define fetchStyles function before using it
   const fetchStyles = async () => {
     try {
       const response = await fetch(`${kandinskyApi.url}static/styles/key`, {
@@ -74,6 +69,11 @@ export const ImageGenerator = ({ onGenerate }: ImageGeneratorProps) => {
       console.error("Error fetching styles:", error);
     }
   };
+  
+  // Use useEffect instead of useState for initialization
+  useEffect(() => {
+    fetchStyles();
+  }, []);
 
   // Get model ID
   const getModelId = async () => {
