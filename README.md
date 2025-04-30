@@ -1,69 +1,107 @@
-# Welcome to your Lovable project
+# README: Генерация изображений с интеграцией FusionBrain AI
 
-## Project info
+## Описание проекта
+Этот проект предоставляет удобный интерфейс для генерации изображений с использованием API сервиса FusionBrain AI. Вы можете создавать уникальные изображения по текстовому описанию (prompt) с различными настройками.
 
-**URL**: https://lovable.dev/projects/1a18953c-0af1-42b2-90e2-cc6d6d3eb5ca
+## Интеграция с FusionBrain AI
+Проект использует API от [FusionBrain AI](https://fusionbrain.ai) - российского сервиса генерации изображений с помощью искусственного интеллекта.
 
-## How can I edit this code?
+## Как запустить проект
 
-There are several ways of editing your application.
+### Предварительные требования
+1. Зарегистрируйтесь на [FusionBrain AI](https://fusionbrain.ai/)
+2. Получите API-ключ в личном кабинете
+3. Убедитесь, что у вас установлен Python 3.8 или новее
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/1a18953c-0af1-42b2-90e2-cc6d6d3eb5ca) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Установка
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/ваш-репозиторий/генератор-изображений.git
+cd генератор-изображений
 ```
 
-**Edit a file directly in GitHub**
+2. Установите зависимости:
+```bash
+pip install -r requirements.txt
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Создайте файл `.env` и добавьте ваш API-ключ:
+```
+FUSIONBRAIN_API_KEY=ваш_ключ_здесь
+FUSIONBRAIN_SECRET_KEY=ваш_секретный_ключ_здесь
+```
 
-**Use GitHub Codespaces**
+### Запуск
+1. Запустите основной скрипт:
+```bash
+python main.py
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. Следуйте инструкциям в консоли для генерации изображений
 
-## What technologies are used for this project?
+## Использование API FusionBrain AI
+Для прямого использования API FusionBrain AI:
 
-This project is built with .
+1. Получите токен авторизации:
+```python
+import requests
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+url = "https://fusionbrain.ai/api/v1/auth"
+headers = {
+    "X-Key": f"Key {API_KEY}",
+    "X-Secret": f"Secret {SECRET_KEY}",
+}
+response = requests.post(url, headers=headers)
+token = response.json()["token"]
+```
 
-## How can I deploy this project?
+2. Отправьте запрос на генерацию:
+```python
+url = "https://fusionbrain.ai/api/v1/text2image/run"
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json",
+}
+data = {
+    "style": "DEFAULT",
+    "width": 1024,
+    "height": 1024,
+    "generateParams": {
+        "query": "красивая картинка с горами и озером"
+    }
+}
+response = requests.post(url, headers=headers, json=data)
+uuid = response.json()["uuid"]
+```
 
-Simply open [Lovable](https://lovable.dev/projects/1a18953c-0af1-42b2-90e2-cc6d6d3eb5ca) and click on Share -> Publish.
+3. Получите результат:
+```python
+url = f"https://fusionbrain.ai/api/v1/text2image/status/{uuid}"
+response = requests.get(url, headers=headers)
+if response.json()["status"] == "DONE":
+    image_base64 = response.json()["images"][0]
+```
 
-## I want to use a custom domain - is that possible?
+## Настройки генерации
+Доступные параметры:
+- `style`: стиль изображения (DEFAULT, KANDINSKY, UHD, ANIME и др.)
+- `width`: ширина изображения (до 1024)
+- `height`: высота изображения (до 1024)
+- `generateParams.query`: текстовое описание изображения
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Примеры использования
+```python
+# Генерация пейзажа
+generate_image("Закат над морем, импрессионизм", style="KANDINSKY")
+
+# Генерация портрета
+generate_image("Портрет кота в шляпе, стиль пиксель-арт", style="UHD")
+```
+
+## Ограничения
+- Бесплатная версия имеет лимиты на количество запросов
+- Максимальный размер изображения - 1024x1024
+- Время генерации может занимать от нескольких секунд до минут
+
+## Лицензия
+Проект распространяется под лицензией MIT. Использование API FusionBrain AI регулируется условиями сервиса.
